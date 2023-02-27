@@ -31,23 +31,77 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key) {
 	switch (key) {
 	case 't':
+		/*
+		// enables orthographic mode
+		// changes near clip/far clip distance so the object can actually be seen
+		cam.enableOrtho();
+		cam.setNearClip(-1000000);
+		cam.setFarClip(1000000);
+
+		// left-click dragging only pans the XY plane
+		// right-click dragging only zooms in and out using the Z-axis
+		cam.removeAllInteractions();
+		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT);
+		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
+		*/
+
 		cam.setPosition(0, 15, 0);
 		cam.lookAt(glm::vec3(0, 0, 0));
 		break;
 	case 'f':
+		/*
+		cam.enableOrtho();
+		cam.setNearClip(-1000000);
+		cam.setFarClip(1000000);
+
+		cam.removeAllInteractions();
+		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT);
+		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
+		*/
+
 		cam.setPosition(15, 0, 0);
 		cam.lookAt(glm::vec3(0, 0, 0));
 		break;
-	case 'r': 
+	case 'r':
+		/*
+		cam.enableOrtho();
+		cam.setNearClip(-1000000);
+		cam.setFarClip(1000000);
+
+		cam.removeAllInteractions();
+		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT);
+		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
+		*/
+
 		cam.setPosition(0, 0, 15);
 		cam.lookAt(glm::vec3(0, 0, 0));
 		break;
 	case 'p':
-		if (cam.getOrtho())
+		if (cam.getOrtho()) {
 			cam.disableOrtho();
+
+			/*
+			// reset interactions to original Easy Camera controls
+			cam.removeAllInteractions();
+			cam.addInteraction(ofEasyCam::TRANSFORM_ROTATE, OF_MOUSE_BUTTON_LEFT);
+			cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT, 'm'); // m for move
+			cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
+			cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_MIDDLE);
+			cam.setNearClip(.1);
+			*/
+		}
+		/*
+		else {
+			// if ortho is already disabled, reset perspective camera position/viewing angle to default
+			cam.setPosition(15, 0, 0);
+			cam.lookAt(glm::vec3(0, 0, 0));
+			
+			// comment out the other else block if you want to try using this
+		}
+		*/
 		else {
 			cam.enableOrtho();
 			cam.setPosition(glm::vec3(0, 0, 5));
@@ -56,7 +110,7 @@ void ofApp::keyPressed(int key){
 	case 'v':
 		if (!bAddVertex)
 			cam.disableMouseInput();
-		else 
+		else
 			cam.enableMouseInput();
 		bAddVertex = !bAddVertex;
 
