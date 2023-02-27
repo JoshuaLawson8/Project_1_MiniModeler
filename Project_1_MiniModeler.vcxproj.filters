@@ -206,6 +206,9 @@
     <ClInclude Include="src\ray.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\wingedEdge.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

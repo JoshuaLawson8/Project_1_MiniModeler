@@ -5,7 +5,7 @@
 #include <glm/gtx/intersect.hpp>
 #include "vector3.h"
 #include "ray.h"
-
+#include "WingedEdge.h"
 
 class ofApp : public ofBaseApp{
 
