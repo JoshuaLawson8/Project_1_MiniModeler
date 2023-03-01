@@ -101,6 +101,9 @@ void ofApp::keyPressed(int key) {
 			cam.lookAt(glm::vec3(0, 0, 0));
 		}
 		break;
+	case 'd':
+		bDelete = true;
+		break;
 	case 1:
 		bShift = true;
 		break;
@@ -110,48 +113,6 @@ void ofApp::keyPressed(int key) {
 		else
 			cam.enableMouseInput();
 		bAddVertex = !bAddVertex;
-		break;
-	case OF_KEY_DEL:
-		if (firstSelect) {
-			// get the removed edges
-			vector<Edge*> removedEdges;
-			for (auto e : mesh.edgeList) {
-				if (e->head == firstSelect || e->tail == firstSelect) {
-					removedEdges.push_back(e);
-				}
-			}
-
-
-
-
-
-
-			/*
-			// unlink all edges and faces from the removed edges
-			for (auto re : removedEdges) {
-				re->lprev->lnext = NULL;
-				re->rprev->rnext = NULL;
-				re->lnext->lprev = NULL;
-				re->rnext->rprev = NULL;
-
-				if (firstSelect == re->head) {
-					re->lprev->tail = NULL;
-					re->rprev->tail = NULL;
-				}
-				if (firstSelect == re->tail) {
-					re->lnext->head = NULL;
-					re->rnext->head = NULL;
-				}
-
-
-				re->left->e = NULL;
-				re->right->e = NULL;
-
-				remove(mesh.edgeList.begin(), mesh.edgeList.end(), re);
-			}
-			*/
-			remove(mesh.vertList.begin(), mesh.vertList.end(), firstSelect);
-		}
 		break;
 	}
 }
@@ -202,47 +163,6 @@ void ofApp::mousePressed(int x, int y, int button) {
 	glm::vec3 mouseWorld = theCam->screenToWorld(glm::vec3(mouseX, mouseY, 0));
 	glm::vec3 mouseDir = glm::normalize(mouseWorld - origin);
 
-	if (bAddVertex) {
-		std::cout << "adding vert" << endl;
-
-		if (theCam->getOrtho()) {
-			floatingVerts.push_back(new Vertex(mouseWorld - glm::normalize(camAxis) * orthoDistance));
-		}
-		else {
-			float distance;
-			glm::vec3 intersect, normal;
-			glm::intersectRayPlane(origin, mouseDir, glm::vec3(0, 0, 0), glm::normalize(cam.getZAxis()), distance);
-			floatingVerts.push_back(new Vertex(origin + mouseDir * distance));
-		}
-	}
-
-	else {
-		cout << "where are you even firing from?" << endl;
-		cout << "origin: " << origin << endl;
-		cout << "camAxis: " << camAxis << endl;
-		cout << "mouseWorld: " << mouseWorld << endl;
-		cout << "mouseDir: " << mouseDir << endl;
-
-		glm::vec3 intersect, norm;
-		for (int i = 0; i < floatingVerts.size(); i++) {
-			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
-				if (firstSelect && bShift) {
-					mesh.edgeList.push_back(new Edge(firstSelect, floatingVerts[i]));
-				}
-				else {
-					firstSelect = floatingVerts[i];
-					cout << "pew pew, i shot a vertex at " << firstSelect->location << "!!!" << endl;
-					lastPoint = intersect;
-
-					bDrag = true;
-					cam.disableMouseInput();
-				}
-				break;
-			}
-		}
-	}
-
-	/*
 	if (bShift) {
 		glm::vec3 intersect, norm;
 		for (int i = 0; i < floatingVerts.size(); i++) {
@@ -257,7 +177,52 @@ void ofApp::mousePressed(int x, int y, int button) {
 		}
 		return;
 	}
-	*/
+
+	if (bDelete) {
+		glm::vec3 intersect, norm;
+		for (int i = 0; i < floatingVerts.size(); i++) {
+			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
+				
+			}
+		}
+		return;
+	}
+
+
+	if (bAddVertex) {
+		std::cout << "adding vert" << endl;
+
+		if (theCam->getOrtho()) {
+			floatingVerts.push_back(new Vertex(mouseWorld - glm::normalize(camAxis) * orthoDistance));
+		}
+		else {
+			float distance;
+			glm::vec3 intersect, normal;
+			glm::intersectRayPlane(origin, mouseDir, glm::vec3(0, 0, 0), glm::normalize(cam.getZAxis()), distance);
+			floatingVerts.push_back(new Vertex(origin + mouseDir * distance));
+		}
+	}
+	else {
+
+		glm::vec3 intersect, norm;
+		for (int i = 0; i < floatingVerts.size(); i++) {
+			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
+				if (firstSelect && bShift) {
+					mesh.edgeList.push_back(new Edge(firstSelect, floatingVerts[i]));
+				}
+				else {
+					firstSelect = floatingVerts[i];
+					lastPoint = intersect;
+
+					bDrag = true;
+					cam.disableMouseInput();
+				}
+				break;
+			}
+		}
+	}
+
+	
 }
 
 //--------------------------------------------------------------

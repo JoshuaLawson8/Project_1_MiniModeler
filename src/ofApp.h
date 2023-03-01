@@ -30,6 +30,7 @@ public:
 	bool bAddVertex = false;
 	bool bShift = false;
 	bool bDrag = false;
+	bool bDelete = false;
 
 	ofEasyCam cam;
 	ofCamera* theCam;
