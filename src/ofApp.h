@@ -28,10 +28,13 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		bool bAddVertex = false;
-		
+		bool bShift = false;
 
 		ofEasyCam cam;
 		ofCamera * theCam;
 		ofMesh testMesh;
+		WingedEdgeMesh mesh;
+		vector<Vertex *> floatingVerts;
+		Vertex * firstSelect;
 		
 };

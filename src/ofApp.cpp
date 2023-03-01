@@ -4,6 +4,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+	ofNoFill();
 	theCam = &cam;
 	cam.setPosition(15, 0, 0);
 	cam.lookAt(glm::vec3(0, 0, 0));
@@ -19,9 +20,22 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	cam.begin();
-	ofNoFill();
-	for (int i = 0; i < testMesh.getNumVertices(); i++) {
-		ofDrawSphere(testMesh.getVertex(i),.1);
+	for (Vertex * v : floatingVerts) {
+		if (firstSelect) {
+			if (v->location == firstSelect->location) {
+				ofSetColor(ofColor::purple);
+				v->draw();
+				ofSetColor(ofColor::white);
+			}
+			else {
+				v->draw();
+			}
+		}
+		else 
+			v->draw();
+	}
+	for (Edge * e : mesh.edgeList) {
+		e->draw();
 	}
 	drawAxis(ofVec3f(0, 0, 0));
 	ofSetColor(ofColor::white);
@@ -34,7 +48,6 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key) {
 	switch (key) {
 	case 't':
-		/*
 		// enables orthographic mode
 		// changes near clip/far clip distance so the object can actually be seen
 		cam.enableOrtho();
@@ -46,13 +59,10 @@ void ofApp::keyPressed(int key) {
 		cam.removeAllInteractions();
 		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT);
 		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
-		*/
-
 		cam.setPosition(0, 15, 0);
 		cam.lookAt(glm::vec3(0, 0, 0));
 		break;
 	case 'f':
-		/*
 		cam.enableOrtho();
 		cam.setNearClip(-1000000);
 		cam.setFarClip(1000000);
@@ -60,13 +70,10 @@ void ofApp::keyPressed(int key) {
 		cam.removeAllInteractions();
 		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT);
 		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
-		*/
-
 		cam.setPosition(15, 0, 0);
 		cam.lookAt(glm::vec3(0, 0, 0));
 		break;
 	case 'r':
-		/*
 		cam.enableOrtho();
 		cam.setNearClip(-1000000);
 		cam.setFarClip(1000000);
@@ -74,16 +81,12 @@ void ofApp::keyPressed(int key) {
 		cam.removeAllInteractions();
 		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT);
 		cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
-		*/
-
 		cam.setPosition(0, 0, 15);
 		cam.lookAt(glm::vec3(0, 0, 0));
 		break;
 	case 'p':
 		if (cam.getOrtho()) {
 			cam.disableOrtho();
-
-			/*
 			// reset interactions to original Easy Camera controls
 			cam.removeAllInteractions();
 			cam.addInteraction(ofEasyCam::TRANSFORM_ROTATE, OF_MOUSE_BUTTON_LEFT);
@@ -91,9 +94,7 @@ void ofApp::keyPressed(int key) {
 			cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT);
 			cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_MIDDLE);
 			cam.setNearClip(.1);
-			*/
 		}
-		/*
 		else {
 			// if ortho is already disabled, reset perspective camera position/viewing angle to default
 			cam.setPosition(15, 0, 0);
@@ -101,11 +102,9 @@ void ofApp::keyPressed(int key) {
 			
 			// comment out the other else block if you want to try using this
 		}
-		*/
-		else {
-			cam.enableOrtho();
-			cam.setPosition(glm::vec3(0, 0, 5));
-		}
+		break;
+	case 1:
+		bShift = true;
 		break;
 	case 'v':
 		if (!bAddVertex)
@@ -113,13 +112,18 @@ void ofApp::keyPressed(int key) {
 		else
 			cam.enableMouseInput();
 		bAddVertex = !bAddVertex;
-
+		break;
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-
+	switch (key) {
+	case 1:
+		bShift = false;
+		firstSelect = NULL;
+		break;
+	}
 }
 
 //--------------------------------------------------------------
@@ -141,12 +145,28 @@ void ofApp::mousePressed(int x, int y, int button) {
 	glm::vec3 mouseWorld = theCam->screenToWorld(glm::vec3(mouseX, mouseY, 0));
 	glm::vec3 mouseDir = glm::normalize(mouseWorld - origin);
 	
+	if (bShift) {
+		glm::vec3 intersect, norm;
+		for (int i = 0; i < floatingVerts.size(); i++) {
+			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
+				if (firstSelect) {
+					mesh.edgeList.push_back(new Edge(firstSelect, floatingVerts[i]));
+				}
+				else
+					firstSelect = floatingVerts[i];
+				break;
+			}
+		}
+		return;
+	}
+
 	if (bAddVertex) {
 		std::cout << "adding vert" << endl;
 		float distance;
 		glm::vec3 intersect, normal;
 		glm::intersectRayPlane(origin, mouseDir, glm::vec3(0, 0, 0), glm::normalize(cam.getZAxis()), distance);
-		testMesh.addVertex(ofPoint(origin + mouseDir * distance));
+		floatingVerts.push_back(new Vertex(origin + mouseDir * distance));
+
 	}
 
 }
