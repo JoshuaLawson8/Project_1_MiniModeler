@@ -124,6 +124,9 @@ void ofApp::keyReleased(int key) {
 		bShift = false;
 		firstSelect = NULL;
 		break;
+	case 'd':
+		bDelete = false;
+		break;
 	}
 }
 
@@ -168,7 +171,8 @@ void ofApp::mousePressed(int x, int y, int button) {
 		for (int i = 0; i < floatingVerts.size(); i++) {
 			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
 				if (firstSelect) {
-					mesh.edgeList.push_back(new Edge(firstSelect, floatingVerts[i]));
+					Edge* newEdge = new Edge(firstSelect, floatingVerts[i]);
+					mesh.addEdge(newEdge);
 				}
 				else
 					firstSelect = floatingVerts[i];
@@ -182,7 +186,19 @@ void ofApp::mousePressed(int x, int y, int button) {
 		glm::vec3 intersect, norm;
 		for (int i = 0; i < floatingVerts.size(); i++) {
 			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
-				
+				// remove the edges of the vertex
+				cout << mesh.edgesOfVertex(*floatingVerts[i]).size() << endl;
+				cout << "removing edges" << endl;
+				for (auto re : mesh.edgesOfVertex(*floatingVerts[i])) {
+					//remove(mesh.edgeList.begin(), mesh.edgeList.end(), re);
+					mesh.edgeList.erase(std::remove(mesh.edgeList.begin(), mesh.edgeList.end(), re), mesh.edgeList.end());
+				}
+				cout << mesh.edgesOfVertex(*floatingVerts[i]).size() << endl;
+
+				mesh.vertList.erase(floatingVerts[i]);
+				floatingVerts.erase(floatingVerts.begin() + i);
+
+				break;
 			}
 		}
 		return;
@@ -202,27 +218,23 @@ void ofApp::mousePressed(int x, int y, int button) {
 			floatingVerts.push_back(new Vertex(origin + mouseDir * distance));
 		}
 	}
+
 	else {
 
 		glm::vec3 intersect, norm;
 		for (int i = 0; i < floatingVerts.size(); i++) {
 			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
-				if (firstSelect && bShift) {
-					mesh.edgeList.push_back(new Edge(firstSelect, floatingVerts[i]));
-				}
-				else {
-					firstSelect = floatingVerts[i];
-					lastPoint = intersect;
+				firstSelect = floatingVerts[i];
+				lastPoint = intersect;
 
-					bDrag = true;
-					cam.disableMouseInput();
-				}
+				bDrag = true;
+				cam.disableMouseInput();
 				break;
 			}
 		}
 	}
 
-	
+
 }
 
 //--------------------------------------------------------------
