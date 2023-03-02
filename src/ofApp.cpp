@@ -130,7 +130,8 @@ void ofApp::keyPressed(int key) {
 }
 
 void ofApp::saveToFile() {
-	ofstream objFile("mini_model.obj");
+	std::cout << "saving" << endl;
+	ofstream objFile("data/mini_model.obj");
 	for (auto const& x : mesh.vertList){
 		Vertex * v = x.first;
 		objFile << "v " << v->location.x << " " << v->location.y << " " << v->location.z << endl;
@@ -139,9 +140,15 @@ void ofApp::saveToFile() {
 		Face * f = x.first;
 		vector<Vertex *> verts = mesh.vertsOfFace(f);
 		//use std find to find the index of verts 
-		//objFile << "v " << v->location.x << " " << v->location.y << " " << v->location.z << endl;
+		vector<int> indices;
+		for (Vertex * v : verts) {
+			auto it = find(verts.begin(), verts.end(), v);
+			indices.push_back(it - verts.begin());
+
+		}
+		objFile << "f" <<  " " << indices[0] << " " << indices[1] << " " << indices[2] << " " << indices[3] << endl;
 	}
-	
+	objFile.close();
 }
 
 //--------------------------------------------------------------
