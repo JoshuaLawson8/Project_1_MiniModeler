@@ -1,4 +1,6 @@
 #include "ofApp.h"
+#include <iostream>
+#include <fstream>
 
 // test comment to test pushing
 
@@ -36,6 +38,10 @@ void ofApp::draw() {
 	}
 	for (Edge* e : mesh.edgeList) {
 		e->draw();
+	}
+	for (auto f : mesh.faceList) {
+		vector<Vertex *> verts = mesh.vertsOfFace(f.first);
+		//ofDrawPlane
 	}
 	drawAxis(ofVec3f(0, 0, 0));
 	ofSetColor(ofColor::white);
@@ -104,8 +110,14 @@ void ofApp::keyPressed(int key) {
 	case 'd':
 		bDelete = true;
 		break;
+	case 'm':
+		bFace = true;
+		break;
 	case 1:
 		bShift = true;
+		break;
+	case 's':
+		saveToFile();
 		break;
 	case 'v':
 		if (!bAddVertex)
@@ -117,6 +129,21 @@ void ofApp::keyPressed(int key) {
 	}
 }
 
+void ofApp::saveToFile() {
+	ofstream objFile("mini_model.obj");
+	for (auto const& x : mesh.vertList){
+		Vertex * v = x.first;
+		objFile << "v " << v->location.x << " " << v->location.y << " " << v->location.z << endl;
+	}
+	for (auto const& x : mesh.faceList) {
+		Face * f = x.first;
+		vector<Vertex *> verts = mesh.vertsOfFace(f);
+		//use std find to find the index of verts 
+		//objFile << "v " << v->location.x << " " << v->location.y << " " << v->location.z << endl;
+	}
+	
+}
+
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
 	switch (key) {
@@ -126,6 +153,11 @@ void ofApp::keyReleased(int key) {
 		break;
 	case 'd':
 		bDelete = false;
+		break;
+	case 'm':
+		//empty out the array
+		faceList.clear();
+		bFace = false;
 		break;
 	}
 }
@@ -181,6 +213,30 @@ void ofApp::mousePressed(int x, int y, int button) {
 		}
 		return;
 	}
+
+	if (bFace) {
+		glm::vec3 intersect, norm;
+		for (int i = 0; i < floatingVerts.size(); i++) {
+			if (glm::intersectRaySphere(origin, mouseDir, floatingVerts[i]->location, .1, intersect, norm)) {
+				if (faceList.size() >= 3) {
+					std::cout << "adding face" << endl;
+					faceList.push_back(floatingVerts[i]);
+					mesh.faceList.insert({ new Face(faceList[0]->e), faceList[0]->e });
+				}
+				else {
+					std::cout << "face lsit" << faceList.size() << endl;
+					
+					faceList.push_back(floatingVerts[i]);
+					//Edge* newEdge = new Edge(firstSelect, floatingVerts[i]);
+					//mesh.addEdge(newEdge);
+				}
+				
+				break;
+			}
+		}
+		return;
+	}
+
 
 	if (bDelete) {
 		glm::vec3 intersect, norm;

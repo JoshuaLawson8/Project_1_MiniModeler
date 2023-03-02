@@ -15,6 +15,7 @@ public:
 	void draw();
 
 	void keyPressed(int key);
+	void saveToFile();
 	void keyReleased(int key);
 	void mouseMoved(int x, int y);
 	void mouseDragged(int x, int y, int button);
@@ -31,6 +32,7 @@ public:
 	bool bShift = false;
 	bool bDrag = false;
 	bool bDelete = false;
+	bool bFace = false;
 
 	ofEasyCam cam;
 	ofCamera* theCam;
@@ -38,6 +40,8 @@ public:
 	WingedEdgeMesh mesh;
 	vector<Vertex*> floatingVerts;
 	Vertex* firstSelect;
+
+	vector<Vertex *> faceList;
 
 	int orthoDistance = 15;
 	glm::vec3 lastPoint;

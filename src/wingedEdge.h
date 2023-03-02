@@ -17,7 +17,7 @@ public:
 
 class Face {
 	public:
-		Face() {};
+		Face(Edge * edg) {e = edg; };
 		Edge * e;
 };
 
@@ -43,7 +43,7 @@ class WingedEdgeMesh {
 public:
 	std::vector<Edge *> edgeList;
 	std::map<Vertex *, Edge *> vertList;
-	std::map<Face, Edge> faceList;
+	std::map<Face *, Edge *> faceList;
 	void addEdge(Edge * e) {
 		edgeList.push_back(e);
 		vertList.insert({ e->head, e });
@@ -84,6 +84,35 @@ public:
 		return faces;
 	}
 
+	vector<Edge *> edgesOfFace(Face * f) {
+		vector<Edge *> edges;
+		Edge * e = f->e;
+		while (e != f->e) {
+			if (e->left == f) {
+				e = e->lnext;
+				edges.push_back(e);
+			}
+			else {
+				e = e->rnext;
+				edges.push_back(e);
+			}
+		}
+		return edges;
+	}
+
+	vector<Vertex *> vertsOfFace(Face * f) {
+		set<Vertex *> vertSet;
+		vector<Vertex *> verts;
+		vector<Edge *> edges = edgesOfFace(f);
+		for (Edge * e : edges) {
+			vertSet.insert(e->head);
+			vertSet.insert(e->tail);
+		}
+		for (Vertex * v : vertSet) {
+			verts.push_back(v);
+		}
+		return verts;
+	}
 };
 
 
