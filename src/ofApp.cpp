@@ -39,10 +39,25 @@ void ofApp::draw() {
 	for (Edge* e : mesh.edgeList) {
 		e->draw();
 	}
+	/*
 	for (auto f : mesh.faceList) {
-		vector<Vertex *> verts = mesh.vertsOfFace(f.first);
-		//ofDrawPlane
+		vector<Vertex*> verts = mesh.vertsOfFace(f.first);
 	}
+	*/
+
+	vector<ofMesh> faces;
+	for (auto f : mesh.faceList) {
+		vector<Vertex*> verts = mesh.vertsOfFace(f.first);	// currently this only returns an empty vector
+		ofMesh face;
+		for (auto v : verts) {
+			face.addVertex(v->location);
+		}
+		faces.push_back(face);
+	}
+	for (auto f : faces) {
+		f.drawFaces();
+	}
+
 	drawAxis(ofVec3f(0, 0, 0));
 	ofSetColor(ofColor::white);
 	ofDrawBox(10);
@@ -132,21 +147,21 @@ void ofApp::keyPressed(int key) {
 void ofApp::saveToFile() {
 	std::cout << "saving" << endl;
 	ofstream objFile("data/mini_model.obj");
-	for (auto const& x : mesh.vertList){
-		Vertex * v = x.first;
+	for (auto const& x : mesh.vertList) {
+		Vertex* v = x.first;
 		objFile << "v " << v->location.x << " " << v->location.y << " " << v->location.z << endl;
 	}
 	for (auto const& x : mesh.faceList) {
-		Face * f = x.first;
-		vector<Vertex *> verts = mesh.vertsOfFace(f);
+		Face* f = x.first;
+		vector<Vertex*> verts = mesh.vertsOfFace(f);
 		//use std find to find the index of verts 
 		vector<int> indices;
-		for (Vertex * v : verts) {
+		for (Vertex* v : verts) {
 			auto it = find(verts.begin(), verts.end(), v);
 			indices.push_back(it - verts.begin());
 
 		}
-		objFile << "f" <<  " " << indices[0] << " " << indices[1] << " " << indices[2] << " " << indices[3] << endl;
+		objFile << "f" << " " << indices[0] << " " << indices[1] << " " << indices[2] << " " << indices[3] << endl;
 	}
 	objFile.close();
 }
@@ -232,12 +247,12 @@ void ofApp::mousePressed(int x, int y, int button) {
 				}
 				else {
 					std::cout << "face lsit" << faceList.size() << endl;
-					
+
 					faceList.push_back(floatingVerts[i]);
 					//Edge* newEdge = new Edge(firstSelect, floatingVerts[i]);
 					//mesh.addEdge(newEdge);
 				}
-				
+
 				break;
 			}
 		}
